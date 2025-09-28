@@ -1,0 +1,40 @@
+# Normalize all text files to use LF in the repo, convert to OS native on checkout
+* text=auto
+
+# Maven wrapper scripts: enforce LF for Unix shell, CRLF for Windows batch
+/mvnw text eol=lf
+/mvnw.cmd text eol=crlf
+
+# Shell scripts and bash files to LF
+*.sh text eol=lf
+
+# Batch files to CRLF
+*.bat text eol=crlf
+
+# Angular build files often include JS/TS/HTML/CSS
+*.js text
+*.ts text
+*.html text
+*.css text
+
+# IntelliJ project files are text
+*.iml text
+.idea/** text
+
+# Images and binaries (no diff, binary mode)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.exe binary
+*.dll binary
+
+# Mark markdown files as text and use custom diff
+*.md text diff=markdown
+
+# Log files: treat as text but maybe exclude from repo generally
+*.log text
+
+# Prevent Git from trying to merge lock files
+*.lock merge=ours

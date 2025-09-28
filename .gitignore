@@ -1,9 +1,16 @@
+# Maven and Gradle build outputs
 target/
+build/
 !.mvn/wrapper/maven-wrapper.jar
+
+# Exclusions for nested build directories
 !**/src/main/**/target/
 !**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-### IntelliJ IDEA ###
+# IntelliJ IDEA
+.idea
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml
@@ -12,7 +19,7 @@ target/
 *.iml
 *.ipr
 
-### Eclipse ###
+# Eclipse
 .apt_generated
 .classpath
 .factorypath
@@ -21,23 +28,53 @@ target/
 .springBeans
 .sts4-cache
 
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+/nb-gradle/
 
-### VS Code ###
+# VS Code
 .vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
-### Mac OS ###
+# Mac OS
 .DS_Store
+
+# Node
+/node_modules/
+npm-debug.log
+yarn-error.log
+
+# Angular
+/.angular/cache
+/dist
+/out-tsc
+/coverage
+.sass-cache/
+
+# Miscellaneous logs and files
+/connect.lock
+/libpeerconnection.log
+/testem.log
+/typings
+Thumbs.db
+
+# Docker or temp data directories
 /mysql/
 /volume-data/
 /data/
 /docker/tempo/tempo-data/
-/docker/tempo/tempo-data/
+
+# Other IDE/editor files
+.c9/
+*.launch
+*.sublime-workspace
+.history/
+
+# Environment files (secrets)
+.env
