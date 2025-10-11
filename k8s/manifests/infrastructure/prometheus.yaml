@@ -19,7 +19,7 @@ spec:
             - containerPort: 9090
           args:
             - --enable-feature=exemplar-storage
-            - --config.file=/etc/prometheus/prometheus.yaml
+            - --config.file=/etc/prometheus/prometheus.yml
           volumeMounts:
             - name: prometheus-config
               mountPath: /etc/prometheus

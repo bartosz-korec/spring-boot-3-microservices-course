@@ -15,14 +15,14 @@ spec:
       containers:
         - name: tempo
           image: grafana/tempo:2.8.2
-          args: ["-config.file=/etc/tempo.yaml"]
+          args: ["-config.file=/etc/tempo.yml"]
           securityContext:
             runAsUser: 0
             runAsGroup: 0
           volumeMounts:
             - name: tempo-config
-              mountPath: /etc/tempo.yaml
-              subPath: tempo.yaml
+              mountPath: /etc/tempo.yml
+              subPath: tempo.yml
             - name: tempo-data
               mountPath: /tmp/tempo
           ports:
@@ -60,7 +60,7 @@ kind: ConfigMap
 metadata:
   name: tempo-config
 data:
-  tempo.yaml: |
+  tempo.yml: |
     server:
       http_listen_port: 3200
     
