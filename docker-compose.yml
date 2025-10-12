@@ -12,7 +12,7 @@ services:
       - mongodb_data:/data/db
 
   postgres:
-    image: postgres:18-alpine
+    image: postgres:17-alpine
     container_name: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -20,7 +20,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   kafka:
@@ -29,8 +29,6 @@ services:
     container_name: kafka
     ports:
       - "9092:9092" # Maps Container Port 9092, default for Kafka client communication, to Host Port 9092
-      - "29092:29092"  # internal Docker network access (for schema-registry, kafka-ui)
-      - "9093:9093" # Maps Container Port 9093, used for advertised listeners for external clients, to Host Port 9093
     environment:
       KAFKA_PROCESS_ROLES: 'controller,broker'  # Kafka acts as both broker and controller.
       KAFKA_NODE_ID: 1  # A unique ID for this Kafka instance.
@@ -46,7 +44,7 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
 
       KAFKA_LOG_DIRS: /var/lib/kafka/data  # Path where Kafka stores its logs.
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true' # Kafka will automatically create a topic.
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true # Kafka will automatically create a topic.
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1  # Since we’re running one broker, one replica is enough.
       KAFKA_LOG_RETENTION_HOURS: 168  # Keep logs for 7 days.
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0  # No delay for consumer rebalancing.
@@ -66,7 +64,7 @@ services:
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka:29092'
-      SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081
+      SCHEMA_REGISTRY_LISTENERS: 'http://schema-registry:8081'
     volumes:
       - schema_registry_data:/var/lib/schema-registry
 
@@ -80,15 +78,15 @@ services:
       - schema-registry
     environment:
       KAFKA_CLUSTERS_NAME: local
-      KAFKA_CLUSTERS_BOOTSTRAPSERVERS: kafka:29092
-      KAFKA_CLUSTERS_SCHEMAREGISTRY: http://schema-registry:8081
-      DYNAMIC_CONFIG_ENABLED: 'true'
+      KAFKA_CLUSTERS_BOOTSTRAPSERVERS: 'kafka:29092'
+      KAFKA_CLUSTERS_SCHEMAREGISTRY: 'http://schema-registry:8081'
+      DYNAMIC_CONFIG_ENABLED: true
 
   keycloak-postgres:
     container_name: keycloak-postgres
-    image: postgres:18-alpine
+    image: postgres:17-alpine
     volumes:
-      - keycloak_postgres_data:/var/lib/postgresql
+      - keycloak_postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${KEYCLOAK_DB_NAME}
       POSTGRES_USER: ${KEYCLOAK_DB_USER}
