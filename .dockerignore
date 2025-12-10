@@ -1,0 +1,49 @@
+# --- Git & Configuration ---
+.git
+.gitignore
+.dockerignore
+compose.yaml
+README.md
+
+# --- Secrets & Environment ---
+.env
+*.env
+
+# --- Java / Maven Build Artifacts ---
+# Crucial: Ignore target folders in root and ALL sub-modules
+target/
+**/target/
+build/
+**/build/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# --- Frontend / Node Artifacts ---
+# Crucial: Do not copy local node_modules (OS incompatibility risk)
+**/node_modules/
+**/dist/
+**/.angular/
+npm-debug.log
+yarn-error.log
+
+# --- IDE & Editor Metadata ---
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+.DS_Store
+
+# --- Docker Data & Infra Config ---
+# We generally don't need the 'docker' folder inside the Java application image
+# (Those files are mounted via volume in compose.yaml, not baked into the jar)
+docker/
+mongodb_data/
+postgres_data/
+kafka_data/

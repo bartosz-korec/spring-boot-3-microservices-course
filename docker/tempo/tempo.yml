@@ -1,12 +1,15 @@
 server:
-  http_listen_port: 3200
+  http_listen_port: 3100
 
 distributor:
   receivers:
     zipkin:
+      endpoint: ":9411"
 
 storage:
   trace:
     backend: local
     local:
       path: /var/tempo
+    wal:
+      path: /var/tempo/wal

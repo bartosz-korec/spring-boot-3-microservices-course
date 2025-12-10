@@ -209,6 +209,117 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
+  product-service:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+      args:
+        MODULE_NAME: product-service
+    container_name: product-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_INITDB_DATABASE}?authSource=admin
+      - LOKI_URL=http://loki:3100/loki/api/v1/push
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tempo:9411/api/v2/spans
+    depends_on:
+      - mongodb
+
+  order-service:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+      args:
+        MODULE_NAME: order-service
+    container_name: order-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SPRING_KAFKA_PRODUCER_PROPERTIES_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tempo:9411/api/v2/spans
+      - LOKI_URL=http://loki:3100/loki/api/v1/push
+      - INVENTORY_SERVICE_URL=http://inventory-service:8082
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/order_service
+    depends_on:
+      - postgres
+      - kafka
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+      args:
+        MODULE_NAME: inventory-service
+    container_name: inventory-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/inventory_service
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - LOKI_URL=http://loki:3100/loki/api/v1/push
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tempo:9411/api/v2/spans
+    depends_on:
+      - postgres
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+      args:
+        MODULE_NAME: notification-service
+    container_name: notification-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SPRING_KAFKA_CONSUMER_PROPERTIES_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - LOKI_URL=http://loki:3100/loki/api/v1/push
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tempo:9411/api/v2/spans
+      - SPRING_MAIL_USERNAME=${MAIL_USERNAME}
+      - SPRING_MAIL_PASSWORD=${MAIL_PASSWORD}
+    depends_on:
+      - kafka
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+      args:
+        MODULE_NAME: api-gateway
+    container_name: api-gateway
+    ports:
+      - "9000:9000"
+    environment:
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:8181/realms/spring-microservices-security-realm
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/spring-microservices-security-realm/protocol/openid-connect/certs
+
+      - PRODUCT_SERVICE_URL=http://product-service:8080
+      - ORDER_SERVICE_URL=http://order-service:8081
+      - INVENTORY_SERVICE_URL=http://inventory-service:8082
+
+      - LOKI_URL=http://loki:3100/loki/api/v1/push
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tempo:9411/api/v2/spans
+
+    depends_on:
+      - keycloak
+      - product-service
+      - order-service
+      - inventory-service
+      - loki
+      - tempo
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+
 volumes:
   postgres_data:
   keycloak_postgres_data:
